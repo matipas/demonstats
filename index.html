@@ -1,236 +1,308 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#090b13">
-  <meta name="description" content="DemonStats — Geometry Dash demon completion tracking and rankings.">
-  <title>DemonStats — Geometry Dash rankings</title>
-  <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DemonStats</title>
+<style>
+:root {
+  --bg:#080b13; --panel:#121a2a; --line:#293650;
+  --text:#f4f6ff; --muted:#9ba8bf; --cyan:#54e5d0;
+  --purple:#a58bff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+font-family:Arial,sans-serif}
+header{padding:18px 5%;border-bottom:1px solid var(--line);
+display:flex;justify-content:space-between;align-items:center;
+flex-wrap:wrap;gap:15px;background:#0c1220}
+.logo{font-size:23px;font-weight:900;letter-spacing:1px}
+.logo span{color:var(--cyan)}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+button,a{cursor:pointer}
+nav button,.btn{background:var(--panel);color:var(--text);
+border:1px solid var(--line);border-radius:9px;padding:11px 14px;
+font-weight:bold;text-decoration:none}
+nav button.active,.btn.primary{background:var(--cyan);
+color:#07110f;border-color:var(--cyan)}
+main{max-width:1100px;margin:auto;padding:28px 18px}
+.page{display:none}.page.active{display:block}
+h1{font-size:clamp(42px,8vw,76px);line-height:1;margin:25px 0}
+h1 span,h2 span{color:var(--cyan)}
+h2{font-size:35px}
+p,.muted{color:var(--muted);line-height:1.6}
+.card{background:var(--panel);border:1px solid var(--line);
+border-radius:14px;padding:20px;margin:16px 0}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+input,select{width:100%;background:#090f1b;color:white;
+border:1px solid var(--line);border-radius:9px;
+padding:13px;font-size:15px;margin:7px 0 15px}
+.controls{display:grid;grid-template-columns:1fr 190px;
+gap:10px;margin:18px 0}
+.level{display:grid;grid-template-columns:45px 1fr auto;
+gap:12px;align-items:center;padding:14px 8px;
+border-bottom:1px solid var(--line)}
+.rank{color:var(--muted);font-weight:bold}
+.level small{display:block;color:var(--muted);margin-top:5px}
+.points{color:var(--cyan);font-weight:bold}
+.code{font-size:clamp(24px,6vw,36px);font-weight:900;
+letter-spacing:5px;text-align:center;color:var(--cyan);
+padding:20px;background:#080f1b;border:1px dashed var(--cyan);
+border-radius:12px;overflow-wrap:anywhere}
+.notice{padding:13px;border:1px solid #806334;
+background:#ffca6510;border-radius:9px;color:#e9d39e;
+font-size:13px;margin:15px 0}
+.success{color:var(--cyan);border-color:#317e69;
+background:#69e2cb10}
+.error{color:#ff9ca7;border-color:#87404a;
+background:#ff718010}
+.empty{padding:25px;text-align:center;color:var(--muted)}
+footer{border-top:1px solid var(--line);padding:25px;
+text-align:center;color:var(--muted);font-size:12px}
+@media(max-width:600px){
+ header{align-items:flex-start;flex-direction:column}
+ .controls{grid-template-columns:1fr}
+ .level{grid-template-columns:30px 1fr auto}
+}
+</style>
 </head>
 <body>
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
+<header>
+  <div class="logo">DEMON<span>STATS</span></div>
+  <nav>
+    <button class="active" data-page="home">Home</button>
+    <button data-page="classic">Classic Demons</button>
+    <button data-page="platformer">Platformer Demons</button>
+    <button data-page="verify">Connect GD</button>
+  </nav>
+</header>
 
-  <header class="topbar">
-    <a class="brand" href="#home">
-      <span class="brand-mark">D</span>
-      <span>DEMON<span class="accent">STATS</span></span>
-    </a>
+<main>
+  <section class="page active" id="home">
+    <p style="color:var(--cyan);font-weight:bold">GEOMETRY DASH COMMUNITY</p>
+    <h1>PROVE YOUR<br><span>DEMON SKILL.</span></h1>
+    <p>Browse rated demons, track your progress and connect your Geometry Dash account.</p>
+    <div class="actions">
+      <button class="btn primary" data-go="classic">Browse Classic Demons</button>
+      <button class="btn" data-go="platformer">Browse Platformer Demons</button>
+      <button class="btn" data-go="verify">Connect account</button>
+    </div>
+  </section>
 
-    <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">☰</button>
+  <section class="page" id="classic">
+    <h2>CLASSIC <span>DEMONS</span></h2>
+    <p>Rated classic demons from Geometry Dash.</p>
+    <div class="controls">
+      <input id="classicSearch" placeholder="Search demon name...">
+      <select id="classicDifficulty">
+        <option value="all">All difficulties</option>
+        <option value="1">Easy Demon</option>
+        <option value="2">Medium Demon</option>
+        <option value="3">Hard Demon</option>
+        <option value="4">Insane Demon</option>
+        <option value="5">Extreme Demon</option>
+      </select>
+    </div>
+    <div id="classicLevels" class="card">
+      <div class="empty">Loading rated demons...</div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="classicMore">Load more</button>
+    </div>
+  </section>
 
-    <nav id="mainNav">
-      <a href="#home" class="nav-link active">Home</a>
-      <a href="#levels" class="nav-link">Demon lists</a>
-      <a href="#leaderboards" class="nav-link">Leaderboards</a>
-      <a href="#submit" class="nav-link">Submit record</a>
-    </nav>
+  <section class="page" id="platformer">
+    <h2>PLATFORMER <span>DEMONS</span></h2>
+    <p>Rated platformer demons from Geometry Dash.</p>
+    <div class="controls">
+      <input id="platformerSearch" placeholder="Search demon name...">
+      <select id="platformerDifficulty">
+        <option value="all">All difficulties</option>
+        <option value="1">Easy Demon</option>
+        <option value="2">Medium Demon</option>
+        <option value="3">Hard Demon</option>
+        <option value="4">Insane Demon</option>
+        <option value="5">Extreme Demon</option>
+      </select>
+    </div>
+    <div id="platformerLevels" class="card">
+      <div class="empty">Loading rated demons...</div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="platformerMore">Load more</button>
+    </div>
+  </section>
 
-    <a class="header-cta" href="#profile">My profile <span>↗</span></a>
-  </header>
+  <section class="page" id="verify">
+    <h2>CONNECT YOUR <span>ACCOUNT</span></h2>
+    <p>Verify that you own your Geometry Dash profile using its Custom text.</p>
+    <div class="card">
+      <label for="gdUsername">Geometry Dash username</label>
+      <input id="gdUsername" maxlength="30" placeholder="Your GD username">
+      <button class="btn primary" id="generateCode">Generate verification code</button>
+      <div id="verificationArea"></div>
+    </div>
+    <div class="notice">
+      Your code is random, expires after 10 minutes and can only be used once.
+      After verification, you can remove it from your Geometry Dash Custom text.
+      Never enter your Geometry Dash password here.
+    </div>
+  </section>
+</main>
 
-  <main>
-    <section class="hero page-section" id="home">
-      <div class="hero-copy">
-        <div class="eyebrow">
-          <span class="live-dot"></span>
-          COMMUNITY TRACKER · EARLY ACCESS
-        </div>
+<footer>DemonStats · Community project · Not affiliated with RobTop Games.</footer>
 
-        <h1>PROVE YOUR<br><span class="gradient-text">DEMON SKILL.</span></h1>
+<script>
+const API = "https://YOUR-BACKEND-ADDRESS";
+const pages = ["home","classic","platformer","verify"];
 
-        <p class="hero-text">
-          Track rated demon completions, earn points and climb the DemonStats leaderboards.
-        </p>
+const state = {
+  classic:{page:0,levels:[],difficulty:"all"},
+  platformer:{page:0,levels:[],difficulty:"all"}
+};
 
-        <div class="hero-actions">
-          <a class="button primary" href="#leaderboards">Explore rankings <span>→</span></a>
-          <a class="button secondary" href="#levels">Browse demon lists</a>
-        </div>
+function showPage(name){
+  pages.forEach(p=>{
+    document.getElementById(p).classList.toggle("active",p===name);
+  });
+  document.querySelectorAll("[data-page]").forEach(b=>{
+    b.classList.toggle("active",b.dataset.page===name);
+  });
+  if(name==="classic") loadLevels("classic",true);
+  if(name==="platformer") loadLevels("platformer",true);
+}
 
-        <div class="hero-note">Classic demons · Platformer demons · Player rankings</div>
-      </div>
+document.querySelectorAll("[data-page]").forEach(b=>{
+  b.addEventListener("click",()=>showPage(b.dataset.page));
+});
+document.querySelectorAll("[data-go]").forEach(b=>{
+  b.addEventListener("click",()=>showPage(b.dataset.go));
+});
 
-      <div class="hero-panel">
-        <div class="panel-top">
-          <span>YOUR NEXT MILESTONE</span>
-          <span class="panel-tag">PLAYER PROFILE</span>
-        </div>
+function renderLevels(type){
+  const search=document.getElementById(type+"Search").value.toLowerCase();
+  const difficulty=state[type].difficulty;
+  const levels=state[type].levels.filter(level=>{
+    const matchesName=level.name.toLowerCase().includes(search);
+    const matchesDifficulty=difficulty==="all" ||
+      String(level.demonDifficulty)===difficulty;
+    return matchesName && matchesDifficulty;
+  });
 
-        <div class="profile-mini">
-          <div class="avatar">M</div>
-          <div>
-            <strong>MATIPAS</strong>
-            <small>Player profile preview</small>
-          </div>
-          <span class="rank-pill">RISING</span>
-        </div>
+  const container=document.getElementById(type+"Levels");
+  if(!levels.length){
+    container.innerHTML='<div class="empty">No levels found on this page.</div>';
+    return;
+  }
 
-        <div class="score-grid">
-          <div><small>DEMON STARS</small><strong>145 <i>DS</i></strong></div>
-          <div><small>MOON POINTS</small><strong>80 <i>MP</i></strong></div>
-          <div><small>LIST POINTS</small><strong>35 <i>LP</i></strong></div>
-        </div>
-
-        <div class="progress-label">
-          <span>Next rank</span>
-          <b>65% (sample)</b>
-        </div>
-        <div class="progress-track"><span></span></div>
-      </div>
-    </section>
-
-    <section class="stats-strip">
-      <div><strong>CLASSIC</strong><span>DEMON STARS</span></div>
-      <div><strong>PLATFORMER</strong><span>MOON POINTS</span></div>
-      <div><strong>COMMUNITY</strong><span>LIST POINTS</span></div>
-      <div><strong>YOUR RUN</strong><span>YOUR PROGRESS</span></div>
-    </section>
-
-    <section class="page-section" id="leaderboards">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow">THE COMPETITION</div>
-          <h2>LEADER<span class="accent">BOARDS</span></h2>
-          <p>Separate rankings for each DemonStats point type.</p>
-        </div>
-        <span class="section-index">01 / RANKINGS</span>
-      </div>
-
-      <div class="tabs" role="tablist">
-        <button class="tab active" data-board="ds">Demon Stars</button>
-        <button class="tab" data-board="mp">Moon Points</button>
-        <button class="tab" data-board="lp">List Points</button>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>#</th><th>PLAYER</th><th>POINTS</th><th>STATUS</th></tr>
-          </thead>
-          <tbody id="leaderboardRows"></tbody>
-        </table>
-      </div>
-      <p class="sample-warning">Leaderboard entries are example data.</p>
-    </section>
-
-    <section class="page-section" id="levels">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow">FIND YOUR NEXT CHALLENGE</div>
-          <h2>DEMON <span class="accent">LISTS</span></h2>
-          <p>Browse rated Classic and Platformer demons.</p>
-        </div>
-        <span class="section-index">02 / LEVELS</span>
-      </div>
-
-      <div class="list-controls">
-        <div class="tabs compact">
-          <button class="tab active" data-list="classic">Classic demons</button>
-          <button class="tab" data-list="platformer">Platformer demons</button>
-        </div>
-        <input id="levelSearch" type="search" placeholder="Search levels or creators…" aria-label="Search levels">
-      </div>
-
-      <div class="level-grid" id="levelGrid"></div>
-      <p class="sample-warning">Example entries only, not a complete official demon list.</p>
-    </section>
-
-    <section class="page-section split-section" id="profile">
+  container.innerHTML=levels.map((level,index)=>`
+    <div class="level">
+      <div class="rank">${index+1}</div>
       <div>
-        <div class="eyebrow">PLAYER CARD</div>
-        <h2>YOUR NAME.<br><span class="accent">YOUR PROGRESS.</span></h2>
-        <p>Player profiles will show Demon Stars, Moon Points, List Points and accepted completions.</p>
-        <a class="button secondary" href="#submit">Submit a record</a>
+        <strong>${escapeHTML(level.name)}</strong>
+        <small>${escapeHTML(level.creator)} · ${level.difficulty}</small>
       </div>
+      <div class="points">${level.stars} ★</div>
+    </div>
+  `).join("");
+}
 
-      <div class="profile-card">
-        <div class="profile-card-head">
-          <div class="avatar large">M</div>
-          <div>
-            <h3>MATIPAS</h3>
-            <span class="muted">Example player · Preview</span>
-          </div>
-        </div>
+function escapeHTML(value){
+  return String(value).replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
 
-        <div class="profile-values">
-          <div><small>DS</small><b>145</b></div>
-          <div><small>MP</small><b>80</b></div>
-          <div><small>LP</small><b>35</b></div>
-        </div>
+async function loadLevels(type,reset=false){
+  const container=document.getElementById(type+"Levels");
+  if(reset){
+    state[type].page=0;
+    state[type].levels=[];
+  }
+  container.innerHTML='<div class="empty">Loading rated demons...</div>';
 
-        <div class="divider"></div>
-        <div class="profile-bottom">
-          <span>Accepted records</span>
-          <b>7 <span class="accent">↗</span></b>
-        </div>
-      </div>
-    </section>
+  try{
+    const difficulty=document.getElementById(type+"Difficulty").value;
+    const result=await fetch(
+      `${API}/api/demons?type=${type}&difficulty=${difficulty}&page=${state[type].page}`
+    );
+    if(!result.ok) throw new Error("Could not load demons.");
+    const data=await result.json();
+    state[type].levels.push(...data.levels);
+    renderLevels(type);
+    state[type].page++;
+  }catch(error){
+    container.innerHTML=`<div class="empty">${escapeHTML(error.message)}<br>Check that the DemonStats backend is running.</div>`;
+  }
+}
 
-    <section class="page-section submit-section" id="submit">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow">SHOW US THE COMPLETION</div>
-          <h2>SUBMIT A <span class="accent">RECORD</span></h2>
-          <p>Enter your Geometry Dash completion details.</p>
-        </div>
-        <span class="section-index">03 / SUBMISSION</span>
-      </div>
+["classic","platformer"].forEach(type=>{
+  document.getElementById(type+"Search").addEventListener("input",()=>renderLevels(type));
+  document.getElementById(type+"Difficulty").addEventListener("change",()=>{
+    state[type].difficulty=document.getElementById(type+"Difficulty").value;
+    loadLevels(type,true);
+  });
+  document.getElementById(type+"More").addEventListener("click",()=>loadLevels(type));
+});
 
-      <form id="recordForm" class="record-form">
-        <label>
-          Player name
-          <input name="player" maxlength="24" required placeholder="Your GD username">
-        </label>
+let activeCode=null;
 
-        <label>
-          Level name
-          <input name="level" maxlength="60" required placeholder="Demon name">
-        </label>
+document.getElementById("generateCode").addEventListener("click",async()=>{
+  const username=document.getElementById("gdUsername").value.trim();
+  const area=document.getElementById("verificationArea");
 
-        <label>
-          Category
-          <select name="category">
-            <option value="classic">Classic Demon</option>
-            <option value="platformer">Platformer Demon</option>
-          </select>
-        </label>
+  if(!username){
+    area.innerHTML='<p class="error">Enter your Geometry Dash username first.</p>';
+    return;
+  }
 
-        <label>
-          Difficulty
-          <select name="difficulty">
-            <option>Easy Demon</option>
-            <option>Medium Demon</option>
-            <option>Hard Demon</option>
-            <option>Insane Demon</option>
-            <option>Extreme Demon</option>
-          </select>
-        </label>
+  area.innerHTML="<p>Generating your code...</p>";
 
-        <label class="full">
-          Proof link
-          <input name="proof" type="url" required placeholder="https://youtu.be/…">
-        </label>
+  try{
+    const response=await fetch(API+"/api/verify/start",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({username})
+    });
+    const data=await response.json();
+    if(!response.ok) throw new Error(data.error||"Could not generate code.");
 
-        <button class="button primary full" type="submit">
-          Save submission <span>→</span>
-        </button>
-      </form>
+    activeCode=data.code;
+    area.innerHTML=`
+      <p>Your new code expires in 10 minutes:</p>
+      <div class="code">${escapeHTML(data.code)}</div>
+      <p>Copy this into your Geometry Dash profile's Custom text, save your profile, then verify below.</p>
+      <button class="btn primary" id="verifyNow">Verify my account</button>
+      <p id="verifyResult"></p>
+    `;
+    document.getElementById("verifyNow").addEventListener("click",verifyCode);
+  }catch(error){
+    area.innerHTML=`<p class="error">${escapeHTML(error.message)}</p>`;
+  }
+});
 
-      <div id="formMessage" class="form-message" aria-live="polite"></div>
-    </section>
-  </main>
-
-  <footer>
-    <a class="brand" href="#home">
-      <span class="brand-mark">D</span>
-      <span>DEMON<span class="accent">STATS</span></span>
-    </a>
-    <span>Community project · Not affiliated with RobTop Games.</span>
-    <a href="#home">Back to top ↑</a>
-  </footer>
-
-  <script src="app.js"></script>
+async function verifyCode(){
+  const result=document.getElementById("verifyResult");
+  result.textContent="Checking your public Geometry Dash profile...";
+  try{
+    const response=await fetch(API+"/api/verify/check",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        username:document.getElementById("gdUsername").value.trim(),
+        code:activeCode
+      })
+    });
+    const data=await response.json();
+    if(!response.ok) throw new Error(data.error||"Verification failed.");
+    activeCode=null;
+    result.className="success";
+    result.textContent="Account verified! You can now remove the temporary code from your Geometry Dash Custom text.";
+  }catch(error){
+    result.className="error";
+    result.textContent=error.message;
+  }
+}
+</script>
 </body>
 </html>
