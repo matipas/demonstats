@@ -1,89 +1,204 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DemonStats</title>
+  <meta name="theme-color" content="#090b13">
+  <meta name="description" content="DemonStats — Geometry Dash demon completion tracking and rankings.">
+  <title>DemonStats — Geometry Dash rankings</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <a class="logo" href="#home">DEMON<span>STATS</span></a>
-    <nav>
-      <a href="#home">Home</a>
-      <a href="#levels">Demon Lists</a>
-      <a href="#leaderboards">Leaderboards</a>
-      <a href="#submit">Submit Record</a>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#home">
+      <span class="brand-mark">D</span>
+      <span>DEMON<span class="accent">STATS</span></span>
+    </a>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">☰</button>
+
+    <nav id="mainNav">
+      <a href="#home" class="nav-link active">Home</a>
+      <a href="#levels" class="nav-link">Demon lists</a>
+      <a href="#leaderboards" class="nav-link">Leaderboards</a>
+      <a href="#submit" class="nav-link">Submit record</a>
     </nav>
+
+    <a class="header-cta" href="#profile">My profile <span>↗</span></a>
   </header>
 
   <main>
-    <section class="hero" id="home">
-      <p class="eyebrow">THE GEOMETRY DASH COMMUNITY</p>
-      <h1>PROVE YOUR<br><span>DEMON SKILL.</span></h1>
-      <p>Track your demon completions, earn points and climb the rankings.</p>
-      <a class="button" href="#leaderboards">Explore Leaderboards →</a>
+    <section class="hero page-section" id="home">
+      <div class="hero-copy">
+        <div class="eyebrow">
+          <span class="live-dot"></span>
+          COMMUNITY TRACKER · EARLY ACCESS
+        </div>
+
+        <h1>PROVE YOUR<br><span class="gradient-text">DEMON SKILL.</span></h1>
+
+        <p class="hero-text">
+          Track rated demon completions, earn points and climb the DemonStats leaderboards.
+        </p>
+
+        <div class="hero-actions">
+          <a class="button primary" href="#leaderboards">Explore rankings <span>→</span></a>
+          <a class="button secondary" href="#levels">Browse demon lists</a>
+        </div>
+
+        <div class="hero-note">Classic demons · Platformer demons · Player rankings</div>
+      </div>
+
+      <div class="hero-panel">
+        <div class="panel-top">
+          <span>YOUR NEXT MILESTONE</span>
+          <span class="panel-tag">PLAYER PROFILE</span>
+        </div>
+
+        <div class="profile-mini">
+          <div class="avatar">M</div>
+          <div>
+            <strong>MATIPAS</strong>
+            <small>Player profile preview</small>
+          </div>
+          <span class="rank-pill">RISING</span>
+        </div>
+
+        <div class="score-grid">
+          <div><small>DEMON STARS</small><strong>145 <i>DS</i></strong></div>
+          <div><small>MOON POINTS</small><strong>80 <i>MP</i></strong></div>
+          <div><small>LIST POINTS</small><strong>35 <i>LP</i></strong></div>
+        </div>
+
+        <div class="progress-label">
+          <span>Next rank</span>
+          <b>65% (sample)</b>
+        </div>
+        <div class="progress-track"><span></span></div>
+      </div>
     </section>
 
-    <section id="leaderboards">
-      <p class="eyebrow">THE COMPETITION</p>
-      <h2>LEADERBOARDS</h2>
-      <div class="tabs">
+    <section class="stats-strip">
+      <div><strong>CLASSIC</strong><span>DEMON STARS</span></div>
+      <div><strong>PLATFORMER</strong><span>MOON POINTS</span></div>
+      <div><strong>COMMUNITY</strong><span>LIST POINTS</span></div>
+      <div><strong>YOUR RUN</strong><span>YOUR PROGRESS</span></div>
+    </section>
+
+    <section class="page-section" id="leaderboards">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">THE COMPETITION</div>
+          <h2>LEADER<span class="accent">BOARDS</span></h2>
+          <p>Separate rankings for each DemonStats point type.</p>
+        </div>
+        <span class="section-index">01 / RANKINGS</span>
+      </div>
+
+      <div class="tabs" role="tablist">
         <button class="tab active" data-board="ds">Demon Stars</button>
         <button class="tab" data-board="mp">Moon Points</button>
         <button class="tab" data-board="lp">List Points</button>
       </div>
+
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>#</th><th>PLAYER</th><th>POINTS</th></tr>
+            <tr><th>#</th><th>PLAYER</th><th>POINTS</th><th>STATUS</th></tr>
           </thead>
           <tbody id="leaderboardRows"></tbody>
         </table>
       </div>
-      <p class="note">Preview leaderboard — example data only.</p>
+      <p class="sample-warning">Leaderboard entries are example data.</p>
     </section>
 
-    <section id="levels">
-      <p class="eyebrow">FIND YOUR NEXT CHALLENGE</p>
-      <h2>DEMON LISTS</h2>
-      <div class="tabs">
-        <button class="tab active" data-list="classic">Classic Demons</button>
-        <button class="tab" data-list="platformer">Platformer Demons</button>
+    <section class="page-section" id="levels">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">FIND YOUR NEXT CHALLENGE</div>
+          <h2>DEMON <span class="accent">LISTS</span></h2>
+          <p>Browse rated Classic and Platformer demons.</p>
+        </div>
+        <span class="section-index">02 / LEVELS</span>
       </div>
-      <input id="levelSearch" placeholder="Search demons..." type="search">
-      <div id="levelGrid" class="level-grid"></div>
-      <p class="note">Example levels only, not a complete official list.</p>
-    </section>
 
-    <section id="profile">
-      <p class="eyebrow">PLAYER PROFILE</p>
-      <h2>MATIPAS</h2>
-      <div class="profile">
-        <div><strong>145</strong><span>Demon Stars</span></div>
-        <div><strong>80</strong><span>Moon Points</span></div>
-        <div><strong>35</strong><span>List Points</span></div>
+      <div class="list-controls">
+        <div class="tabs compact">
+          <button class="tab active" data-list="classic">Classic demons</button>
+          <button class="tab" data-list="platformer">Platformer demons</button>
+        </div>
+        <input id="levelSearch" type="search" placeholder="Search levels or creators…" aria-label="Search levels">
       </div>
-      <p class="note">Sample profile data.</p>
+
+      <div class="level-grid" id="levelGrid"></div>
+      <p class="sample-warning">Example entries only, not a complete official demon list.</p>
     </section>
 
-    <section id="submit">
-      <p class="eyebrow">SHOW YOUR COMPLETION</p>
-      <h2>SUBMIT A RECORD</h2>
-      <form id="recordForm">
-        <label>Player name
-          <input name="player" required maxlength="24" placeholder="Your GD username">
+    <section class="page-section split-section" id="profile">
+      <div>
+        <div class="eyebrow">PLAYER CARD</div>
+        <h2>YOUR NAME.<br><span class="accent">YOUR PROGRESS.</span></h2>
+        <p>Player profiles will show Demon Stars, Moon Points, List Points and accepted completions.</p>
+        <a class="button secondary" href="#submit">Submit a record</a>
+      </div>
+
+      <div class="profile-card">
+        <div class="profile-card-head">
+          <div class="avatar large">M</div>
+          <div>
+            <h3>MATIPAS</h3>
+            <span class="muted">Example player · Preview</span>
+          </div>
+        </div>
+
+        <div class="profile-values">
+          <div><small>DS</small><b>145</b></div>
+          <div><small>MP</small><b>80</b></div>
+          <div><small>LP</small><b>35</b></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="profile-bottom">
+          <span>Accepted records</span>
+          <b>7 <span class="accent">↗</span></b>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section submit-section" id="submit">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">SHOW US THE COMPLETION</div>
+          <h2>SUBMIT A <span class="accent">RECORD</span></h2>
+          <p>Enter your Geometry Dash completion details.</p>
+        </div>
+        <span class="section-index">03 / SUBMISSION</span>
+      </div>
+
+      <form id="recordForm" class="record-form">
+        <label>
+          Player name
+          <input name="player" maxlength="24" required placeholder="Your GD username">
         </label>
-        <label>Level name
-          <input name="level" required maxlength="60" placeholder="Demon name">
+
+        <label>
+          Level name
+          <input name="level" maxlength="60" required placeholder="Demon name">
         </label>
-        <label>Category
+
+        <label>
+          Category
           <select name="category">
             <option value="classic">Classic Demon</option>
             <option value="platformer">Platformer Demon</option>
           </select>
         </label>
-        <label>Difficulty
+
+        <label>
+          Difficulty
           <select name="difficulty">
             <option>Easy Demon</option>
             <option>Medium Demon</option>
@@ -92,21 +207,28 @@
             <option>Extreme Demon</option>
           </select>
         </label>
-        <label>Proof link
-          <input name="proof" type="url" required placeholder="https://youtu.be/...">
+
+        <label class="full">
+          Proof link
+          <input name="proof" type="url" required placeholder="https://youtu.be/…">
         </label>
-        <button class="button" type="submit">Save demo submission</button>
+
+        <button class="button primary full" type="submit">
+          Save submission <span>→</span>
+        </button>
       </form>
-      <p id="formMessage" class="note"></p>
-      <p class="warning">
-        This is a front-end demo. Submissions are saved only in the
-        visitor's browser, not sent to a moderator.
-      </p>
+
+      <div id="formMessage" class="form-message" aria-live="polite"></div>
     </section>
   </main>
 
   <footer>
-    DEMON<span>STATS</span> · Community project
+    <a class="brand" href="#home">
+      <span class="brand-mark">D</span>
+      <span>DEMON<span class="accent">STATS</span></span>
+    </a>
+    <span>Community project · Not affiliated with RobTop Games.</span>
+    <a href="#home">Back to top ↑</a>
   </footer>
 
   <script src="app.js"></script>
