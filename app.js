@@ -1,136 +1,162 @@
-const players = [
-  { name: "Nova", ds: 1280, mp: 640, lp: 210, status: "TOP PLAYER" },
-  { name: "PixelRush", ds: 940, mp: 820, lp: 185, status: "ACTIVE" },
-  { name: "MATIPAS", ds: 145, mp: 80, lp: 35, status: "RISING" },
-  { name: "WaveCore", ds: 120, mp: 55, lp: 20, status: "ACTIVE" }
-];
+const API = "https://demonstats.onrender.com";
 
-const levels = {
-  classic: [
-    { name: "Shiver", creator: "SpKale", difficulty: "Easy Demon", points: 10, className: "Easy class" },
-    { name: "System Split", creator: "Danzmen", difficulty: "Medium Demon", points: 20, className: "Easy class" },
-    { name: "Nine Circles", creator: "Zobros", difficulty: "Hard Demon", points: 30, className: "Easy class" },
-    { name: "Bloodlust", creator: "Knobbelboy", difficulty: "Extreme Demon", points: 55, className: "Hard class" },
-    { name: "Alkatraz", creator: "TeamN2", difficulty: "Insane Demon", points: 45, className: "Hard class" }
-  ],
-
-  platformer: [
-    { name: "Coaster Mountain", creator: "Example Creator", difficulty: "Easy Demon", points: 10, className: "Easy class" },
-    { name: "The Tower", creator: "Example Creator", difficulty: "Medium Demon", points: 25, className: "Hard class" },
-    { name: "Flipswap Factory", creator: "Example Creator", difficulty: "Hard Demon", points: 30, className: "Easy class" }
-  ]
+const boards = {
+  ds: { label: "Demon Stars", field: "ds" },
+  mp: { label: "Moon Points", field: "mp" },
+  lp: { label: "List Points", field: "lp" },
+  dcp: { label: "Demon Creator Points", field: "dcp" }
 };
 
 let board = "ds";
+let players = [];
 let list = "classic";
+let difficulty = "all";
+let page = 0;
+let loading = false;
 
 const $ = selector => document.querySelector(selector);
 
-function renderBoard() {
-  const sorted = [...players].sort((a, b) => b[board] - a[board]);
+async function loadPlayers() {
+  try {
+    const response = await fetch(`${API}/api/leaderboard`);
+    if (!response.ok) throw new Error("Leaderboard unavailable");
 
-  $("#leaderboardRows").innerHTML = sorted.map((player, index) => `
-    <tr>
-      <td>${String(index + 1).padStart(2, "0")}</td>
-      <td>${player.name}</td>
-      <td>${player[board].toLocaleString()} ${board.toUpperCase()}</td>
-      <td><span class="status">${player.status}</span></td>
-    </tr>
-  `).join("");
+    const data = await response.json();
+    players = Array.isArray(data.players) ? data.players : [];
+    renderBoard();
+  } catch (error) {
+    const rows = $("#leaderboardRows");
+    if (rows) {
+      rows.innerHTML =
+        `<tr><td colspan="4">Leaderboard is waiting for backend support.</td></tr>`;
+    }
+  }
 }
 
-function renderLevels() {
-  const query = $("#levelSearch").value.trim().toLowerCase();
+function renderBoard() {
+  const rows = $("#leaderboardRows");
+  if (!rows) return;
 
-  const shown = levels[list].filter(level =>
-    (level.name + " " + level.creator + " " + level.difficulty)
-      .toLowerCase()
-      .includes(query)
+  const sorted = [...players].sort(
+    (a, b) => Number(b[board] || 0) - Number(a[board] || 0)
   );
 
-  $("#levelGrid").innerHTML = shown.length
+  rows.innerHTML = sorted.length
+    ? sorted.map((player, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${escapeHTML(player.name || "Unknown")}</td>
+        <td>${Number(player[board] || 0).toLocaleString()}</td>
+      </tr>
+    `).join("")
+    : `<tr><td colspan="3">No verified players yet.</td></tr>`;
+
+  const title = $("#leaderboardTitle");
+  if (title) title.textContent = boards[board].label;
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+function renderLevels(levels) {
+  const grid = $("#levelGrid");
+  if (!grid) return;
+
+  const query = ($("#levelSearch")?.value || "").trim().toLowerCase();
+
+  const shown = levels.filter(level =>
+    `${level.name} ${level.creator} ${level.difficulty}`
+      .toLowerCase().includes(query)
+  );
+
+  grid.innerHTML = shown.length
     ? shown.map(level => `
       <article class="level-card">
-        <div class="level-card-top">
-          <span class="difficulty">${level.difficulty}</span>
-          <span class="muted">${level.className}</span>
-        </div>
-        <h3>${level.name}</h3>
-        <p>by ${level.creator}</p>
-        <div class="level-meta">
-          <span>${list === "classic" ? "CLASSIC DEMON" : "PLATFORMER DEMON"}</span>
-          <b>${level.points} ${list === "classic" ? "DS" : "MP"}</b>
-        </div>
+        <h3>${escapeHTML(level.name)}</h3>
+        <p>By ${escapeHTML(level.creator || "Unknown creator")}</p>
+        <p>${escapeHTML(level.difficulty || "Demon")}</p>
       </article>
     `).join("")
-    : `<p class="muted">No matching levels in this example list.</p>`;
+    : `<p>No matching demons found.</p>`;
+}
+
+async function loadDemons(reset = false) {
+  if (loading) return;
+  if (reset) page = 0;
+
+  loading = true;
+
+  try {
+    const params = new URLSearchParams({
+      type: list,
+      difficulty,
+      page: String(page)
+    });
+
+    const response = await fetch(`${API}/api/demons?${params}`);
+    if (!response.ok) throw new Error("Could not load demons");
+
+    const data = await response.json();
+
+    renderLevels(data.levels || []);
+    page++;
+  } catch (error) {
+    const grid = $("#levelGrid");
+    if (grid) grid.innerHTML = "<p>Could not load demons. Try again later.</p>";
+  } finally {
+    loading = false;
+  }
 }
 
 document.querySelectorAll("[data-board]").forEach(button => {
   button.addEventListener("click", () => {
-    document.querySelectorAll("[data-board]").forEach(item =>
-      item.classList.remove("active")
-    );
-
-    button.classList.add("active");
     board = button.dataset.board;
+    document.querySelectorAll("[data-board]").forEach(item =>
+      item.classList.toggle("active", item === button)
+    );
     renderBoard();
   });
 });
 
 document.querySelectorAll("[data-list]").forEach(button => {
   button.addEventListener("click", () => {
-    document.querySelectorAll("[data-list]").forEach(item =>
-      item.classList.remove("active")
-    );
-
-    button.classList.add("active");
     list = button.dataset.list;
-    renderLevels();
+    document.querySelectorAll("[data-list]").forEach(item =>
+      item.classList.toggle("active", item === button)
+    );
+    loadDemons(true);
   });
 });
 
-$("#levelSearch").addEventListener("input", renderLevels);
+$("#levelSearch")?.addEventListener("input", () => loadDemons(true));
 
-$("#recordForm").addEventListener("submit", event => {
+$("#difficultyFilter")?.addEventListener("change", event => {
+  difficulty = event.target.value;
+  loadDemons(true);
+});
+
+$("#loadMore")?.addEventListener("click", () => loadDemons());
+
+$("#menuToggle")?.addEventListener("click", () => {
+  $("#mainNav")?.classList.toggle("open");
+});
+
+$("#recordForm")?.addEventListener("submit", async event => {
   event.preventDefault();
 
-  const data = Object.fromEntries(new FormData(event.currentTarget).entries());
-
-  try {
-    const saved = JSON.parse(
-      localStorage.getItem("demonstats-demo-submissions") || "[]"
-    );
-
-    saved.push({
-      ...data,
-      createdAt: new Date().toISOString()
-    });
-
-    localStorage.setItem(
-      "demonstats-demo-submissions",
-      JSON.stringify(saved)
-    );
-
-    $("#formMessage").textContent =
-      "Submission saved in this browser.";
-
-    event.currentTarget.reset();
-  } catch (error) {
-    $("#formMessage").textContent =
-      "Could not save. Please try again.";
+  const message = $("#formMessage");
+  if (message) {
+    message.textContent =
+      "Record submissions need backend approval and verification.";
   }
 });
 
-$("#menuToggle").addEventListener("click", () => {
-  $("#mainNav").classList.toggle("open");
-});
-
-document.querySelectorAll("#mainNav a").forEach(link => {
-  link.addEventListener("click", () => {
-    $("#mainNav").classList.remove("open");
-  });
-});
-
-renderBoard();
-renderLevels();
+loadPlayers();
+loadDemons(true);
